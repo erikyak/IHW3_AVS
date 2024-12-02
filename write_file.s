@@ -10,7 +10,7 @@ write_file:
 	push(s0)
 	push(s1)
 	mv s0 a0
-	open(a1, WRITE_ONLY)
+	open(a1, WRITE_ONLY)		# Open file to write
     	li s1 -1
     	beq a0 s1 er_name
     	mv s1 a0 
@@ -18,11 +18,11 @@ write_file:
     	mv a0, s1 
     	mv a1, s0
     	li a2, TEXT_SIZE
-    	ecall
+    	ecall				# Write text into file
     	close(s1)
-    	li a0 1
+    	li a0 1				# If all ok a0 = 1
     	j write_end
-    	er_name:
+    	er_name:			# If some error with name of file a0 = -1
     		la a0 er_name_mes
     		li a7 4
     		ecall
