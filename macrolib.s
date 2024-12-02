@@ -3,6 +3,49 @@
 	jal marks_count
 .end_macro 
 
+.macro want_print(%text)
+	push(a0)
+	print_str("Do you want to print results Y/N? ")
+	mv t0 %text
+	li a7 12
+	ecall
+	newline()
+	li t1 'Y'
+	li t2 'y'
+	beq a0 t1 print
+	beq a0 t2 print
+	j not_print
+	print:
+	mv a0 t0
+	li a7 4
+	ecall
+	not_print:
+	pop(a0)
+.end_macro 
+
+
+.macro run_test(%input_file_path %otput_file_path)
+	.data 
+	input_file_path: .asciz %input_file_path
+	otput_file_path: .asciz %otput_file_path
+	.text
+	push(s0)
+	print_str("Marks from file: ")
+	la a0 input_file_path
+	li a7 4
+	ecall
+	newline()
+	read_from_file(a0)
+	mv s0 a0
+	li a7 4
+	ecall
+	la a1 otput_file_path
+	write_file(a0 a1)
+	newline()
+	pop(s0)
+.end_macro 
+
+
 .macro read_from_file(%file_name)
 	mv a0 %file_name
 	jal read_from_file
@@ -43,8 +86,6 @@
 .macro plus1(%n)
 	addi %n %n 1
 .end_macro 
-
-
 
 .macro read_str(%x %buf)
 	mv t0 %x
@@ -179,43 +220,41 @@ str:	.asciz %x
 	pop(s0)
 .end_macro 
 
-.eqv READ_ONLY	0	# Открыть для чтения
-.eqv WRITE_ONLY	1	# Открыть для записи
-.eqv APPEND	    9	# Открыть для добавления
+.eqv READ_ONLY	0
+.eqv WRITE_ONLY	1
+.eqv APPEND 9
 .macro open(%file_name, %opt)
 	
     	li a7 1024
     	mv a0 %file_name
-    	li a1 %opt        	# Открыть для чтения (флаг = 0)
-    	ecall             		# Дескриптор файла в a0 или -1)
+    	li a1 %opt
+    	ecall
 .end_macro
 
 .macro read(%file_descriptor, %strbuf, %size)
-    li   a7, 63       	# Системный вызов для чтения из файла
-    mv   a0, %file_descriptor       # Дескриптор файла
-    la   a1, %strbuf   	# Адрес буфера для читаемого текста
-    li   a2, %size 		# Размер читаемой порции
-    ecall             	# Чтение
+    	li   a7, 63
+    	mv   a0, %file_descriptor
+    	la   a1, %strbuf
+    	li   a2, %size
+    	ecall
 .end_macro
 
 .macro read_addr_reg(%file_descriptor, %reg, %size)
-    li   a7, 63       	# Системный вызов для чтения из файла
-    mv   a0, %file_descriptor       # Дескриптор файла
-    mv   a1, %reg   	# Адрес буфера для читаемого текста из регистра
-    li   a2, %size 		# Размер читаемой порции
-    ecall             	# Чтение
+    	li   a7, 63
+    	mv   a0, %file_descriptor
+    	mv   a1, %reg
+    	li   a2, %size
+    	ecall
 .end_macro
 
 .macro close(%file_descriptor)
-    li   a7, 57       # Системный вызов закрытия файла
-    mv   a0, %file_descriptor  # Дескриптор файла
-    ecall             # Закрытие файла
+    	li   a7, 57
+    	mv   a0, %file_descriptor
+    	ecall
 .end_macro
 
 .macro allocate(%size)
-    li a7, 9
-    li a0, %size	# Размер блока памяти
-    ecall
+    	li a7, 9
+    	li a0, %size
+    	ecall
 .end_macro
-
-

@@ -1,7 +1,7 @@
 .eqv TEXT_SIZE 512
 .data
- er_name_mes:    .asciz "Incorrect file name\n"
-er_read_mes:    .asciz "Incorrect read operation\n"
+ er_name_mes:    .asciz "Incorrect file name\n\n"
+er_read_mes:    .asciz "Incorrect read operation\n\n"
 .include "macrolib.s"
 .global read_from_file
 .text 
@@ -19,27 +19,27 @@ read_from_file:
 	open(a0, READ_ONLY)
 	li s1 -1
     	beq a0 s1 er_name
-    	mv s0 a0       	# Сохранение дескриптора файла
-    	allocate(TEXT_SIZE)		# Результат хранится в a0
-    	mv s3, a0			# Сохранение адреса кучи в регистре
-    	mv s5, a0			# Сохранение изменяемого адреса кучи в регистре
-    	li s4, TEXT_SIZE	# Сохранение константы для обработки
+    	mv s0 a0
+    	allocate(TEXT_SIZE)
+    	mv s3, a0
+    	mv s5, a0
+    	li s4, TEXT_SIZE
     	mv s6, zero
 	read_loop:
    		read_addr_reg(s0, s5, TEXT_SIZE)
-    		beq a0 s1 er_read	# Ошибка чтения
-    		mv s2 a0       	# Сохранение длины текста
+    		beq a0 s1 er_read
+    		mv s2 a0
     		add s6, s6, s2		
     		bne s2 s4 end_loop
-    		allocate(TEXT_SIZE)		# Результат здесь не нужен, но если нужно то...
-    		add s5 s5 s2		# Адрес для чтения смещается на размер порции
-   		j read_loop				# Обработка следующей порции текста из файла
+    		allocate(TEXT_SIZE)
+    		add s5 s5 s2
+   		j read_loop
 	end_loop:
     	close(s0)
-    	mv t0 s3		# Адрес буфера в куче
-    	add t0 t0 s6	# Адрес последнего прочитанного символа
-    	addi t0 t0 1	# Место для нуля
-    	sb zero (t0)	# Запись нуля в конец текста
+    	mv t0 s3
+    	add t0 t0 s6
+    	addi t0 t0 1
+    	sb zero (t0)
     	mv a0 s3
     	marks_count(a0)
     	j end_read_from_file

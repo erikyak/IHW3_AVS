@@ -34,9 +34,6 @@ marks_count:
 	mark_count_end:
 	li t4 0
 	sb t4 (t3)
-	la a0 marks_number
-	li a7 4
-	ecall
 	pop(s0)
 	pop(ra)
 	la a0 marks_number
